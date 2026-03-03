@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details - EventSphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/events.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container navbar">
+            <a href="../../index.html" class="brand">EventSphere</a>
+            <div class="nav-links" id="navLinks">
+                <a href="events.html">Browse Events</a>
+                <a href="login.html">Login</a>
+                <a href="register.html" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding: 40px 20px;">
+        <div class="event-details-hero">
+            <img id="eventImage" src="" alt="Event Cover">
+        </div>
+
+        <div class="details-wrapper">
+            <div class="glass-card" style="padding: 40px;">
+                <span class="event-category" id="eventCategory"
+                    style="display:inline-block; margin-bottom: 10px;"></span>
+                <h1 id="eventTitle" style="font-size: 36px; margin-bottom: 20px;">Loading...</h1>
+
+                <div style="display: flex; gap: 30px; margin-bottom: 30px; color: var(--gray);">
+                    <div><i class="far fa-calendar-alt"></i> <span id="eventDate"></span></div>
+                    <div><i class="fas fa-map-marker-alt"></i> <span id="eventVenue"></span></div>
+                    <div><i class="fas fa-users"></i> <span id="eventSeats"></span> Seats left</div>
+                </div>
+
+                <div style="margin-bottom: 40px;">
+                    <h3>About this Event</h3>
+                    <p id="eventDesc"
+                        style="color: var(--light); margin-top: 15px; white-space: pre-wrap; font-size: 16px;"></p>
+                </div>
+            </div>
+
+            <div class="glass-card" style="height: fit-content;">
+                <h3 style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border);">
+                    Select Tickets</h3>
+
+                <div id="ticketTiersContainer">
+                    <!-- Ticket tiers injected here -->
+                    <p>Loading tickets...</p>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                        <span style="font-size: 18px; font-weight: 500;">Total Amount</span>
+                        <span style="font-size: 24px; font-weight: 700; color: var(--secondary);">$<span
+                                id="totalAmount">0.00</span></span>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 18px;"
+                        onclick="proceedToCheckout()" id="checkoutBtn" disabled>
+                        Book Now
+                    </button>
+                    <p style="text-align:center; font-size: 12px; color: var(--gray); margin-top: 15px;">Secure checkout
+                        with mock payment gateway.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+        let currentEvent = null;
+        let selectedTickets = {}; // { tierId: { quantity, price } }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                document.getElementById('navLinks').innerHTML = `
+                    <a href="events.html">Browse Events</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="#" onclick="localStorage.clear(); window.location.href='../../index.html'" class="btn btn-outline">Logout</a>
+                `;
+            }
+
+            if (!eventId) {
+                window.location.href = 'events.html';
+                return;
+            }
+
+            try {
+                const res = await API.get(`/events/${eventId}`);
+                currentEvent = res.data;
+                renderEvent(currentEvent);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        function renderEvent(event) {
+            document.getElementById('eventImage').src = event.image_url || 'https://images.unsplash.com/photo-1540575467063-11264b36025e?auto=format&fit=crop&q=80&w=1200';
+            document.getElementById('eventCategory').innerText = event.category_name || 'Event';
+            document.getElementById('eventTitle').innerText = event.title;
+            document.getElementById('eventDate').innerText = new Date(event.start_time).toLocaleString();
+            document.getElementById('eventVenue').innerText = event.venue;
+            document.getElementById('eventSeats').innerText = event.available_seats;
+            document.getElementById('eventDesc').innerText = event.description;
+
+            const tiersContainer = document.getElementById('ticketTiersContainer');
+            if (event.ticket_tiers && event.ticket_tiers.length > 0) {
+                tiersContainer.innerHTML = event.ticket_tiers.map(tier => `
+                    <div class="ticket-selector">
+                        <div>
+                            <div style="font-weight: 600; font-size: 16px;">${tier.name}</div>
+                            <div style="color: var(--primary); font-weight: 700; margin-top: 5px;">$${tier.price}</div>
+                            <div style="font-size: 12px; color: var(--gray); margin-top: 3px;">${tier.available_quantity} available</div>
+                        </div>
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="updateQty(${tier.id}, -1, ${tier.price})" ${tier.available_quantity === 0 ? 'disabled' : ''}>-</button>
+                            <input type="text" class="qty-input" id="qty-${tier.id}" value="0" readonly>
+                            <button class="qty-btn" onclick="updateQty(${tier.id}, 1, ${tier.price}, ${tier.available_quantity})" ${tier.available_quantity === 0 ? 'disabled' : ''}>+</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                tiersContainer.innerHTML = '<p>No tickets active for this event yet.</p>';
+            }
+        }
+
+        function updateQty(tierId, delta, price, maxQty) {
+            const input = document.getElementById(`qty-${tierId}`);
+            let val = parseInt(input.value) + delta;
+
+            if (val < 0) val = 0;
+            if (maxQty && val > maxQty) val = maxQty;
+
+            input.value = val;
+
+            if (val > 0) {
+                selectedTickets[tierId] = { quantity: val, price };
+            } else {
+                delete selectedTickets[tierId];
+            }
+
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            for (let t in selectedTickets) {
+                total += selectedTickets[t].quantity * selectedTickets[t].price;
+            }
+            document.getElementById('totalAmount').innerText = total.toFixed(2);
+            document.getElementById('checkoutBtn').disabled = total === 0;
+        }
+
+        function proceedToCheckout() {
+            if (!localStorage.getItem('token')) {
+                showToast('Please login to continue booking', 'error');
+                setTimeout(() => window.location.href = `login.html?redirect=event-details.html?id=${eventId}`, 1500);
+                return;
+            }
+
+            // Store selected tickets temporarily
+            const ticketsToBook = Object.keys(selectedTickets).map(id => ({
+                ticket_tier_id: parseInt(id),
+                quantity: selectedTickets[id].quantity
+            }));
+
+            sessionStorage.setItem('booking_tickets', JSON.stringify({
+                event_id: currentEvent.id,
+                tickets: ticketsToBook
+            }));
+
+            window.location.href = 'checkout.html';
+        }
+    </script>
+</body>
+
+</html>

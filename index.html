@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventSphere - Premium Event Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="frontend/css/global.css">
+    <link rel="stylesheet" href="frontend/css/events.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container navbar">
+            <a href="index.html" class="brand">EventSphere</a>
+            <div class="nav-links" id="navLinks">
+                <a href="frontend/pages/events.html">Browse Events</a>
+                <a href="frontend/pages/login.html">Login</a>
+                <a href="frontend/pages/register.html" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="events-hero">
+            <h1>Discover & Book Incredible Events</h1>
+            <p style="color: var(--gray); font-size: 18px; max-width: 600px; margin: 0 auto 40px;">
+                Experience the world's best conferences, concerts, and workshops with seamless ticketing and secure checkout.
+            </p>
+            <a href="frontend/pages/events.html" class="btn btn-primary" style="font-size: 18px; padding: 16px 32px;">Explore Events <i class="fas fa-arrow-right"></i></a>
+        </section>
+
+        <section style="margin-bottom: 80px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2>Trending This Week</h2>
+                <a href="frontend/pages/events.html">View All</a>
+            </div>
+            
+            <div class="events-grid" id="featuredEventsContainer">
+                <!-- Skeleton Loaders -->
+                <div class="glass-card event-card">
+                    <div style="height: 200px; background: rgba(255,255,255,0.05); animation: pulse 1.5s infinite;"></div>
+                    <div class="event-content">
+                        <div style="height: 20px; width: 60%; background: rgba(255,255,255,0.05); margin-bottom: 10px;"></div>
+                        <div style="height: 40px; width: 90%; background: rgba(255,255,255,0.05); margin-bottom: 20px;"></div>
+                        <div style="height: 20px; width: 40%; background: rgba(255,255,255,0.05);"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="frontend/js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+            const navLinks = document.getElementById('navLinks');
+
+            if (token && user) {
+                navLinks.innerHTML = `
+                    <a href="frontend/pages/events.html">Browse Events</a>
+                    <a href="frontend/pages/dashboard.html">Dashboard</a>
+                    <a href="#" onclick="logout()" class="btn btn-outline">Logout</a>
+                `;
+            }
+
+            // Load Featured Events
+            try {
+                const res = await API.get('/events?limit=3');
+                const container = document.getElementById('featuredEventsContainer');
+                
+                if (res.data && res.data.length > 0) {
+                    container.innerHTML = res.data.map(event => `
+                        <div class="glass-card event-card">
+                            <img src="${event.image_url || 'https://images.unsplash.com/photo-1540575467063-11264b36025e?auto=format&fit=crop&q=80&w=800'}" alt="Event" class="event-img">
+                            <div class="event-content">
+                                <span class="event-category">${event.category_name || 'Event'}</span>
+                                <h3 class="event-title">${event.title}</h3>
+                                <div class="event-meta">
+                                    <span><i class="far fa-calendar-alt"></i> ${new Date(event.start_time).toLocaleDateString()}</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> ${event.venue}</span>
+                                </div>
+                                <div class="event-footer">
+                                    <span class="event-price">From $${event.price || '0.00'}</span>
+                                    <a href="frontend/pages/event-details.html?id=${event.id}" class="btn btn-outline" style="padding: 8px 16px;">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p>No events found. Start by creating one!</p>';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

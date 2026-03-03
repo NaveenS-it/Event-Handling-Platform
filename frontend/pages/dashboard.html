@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - EventSphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container navbar">
+            <a href="../../index.html" class="brand">EventSphere</a>
+            <div class="nav-links">
+                <a href="events.html">Browse Events</a>
+                <span id="userName" style="color: var(--light); font-weight: 500; margin-left: 20px;"></span>
+                <a href="#" onclick="logout()" class="btn btn-outline" style="padding: 8px 16px;">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" id="nav-dashboard" onclick="switchTab('dashboard')"><i
+                            class="fas fa-chart-pie"></i> Overview</a></li>
+                <li id="menu-my-bookings"><a href="#" id="nav-bookings" onclick="switchTab('bookings')"><i
+                            class="fas fa-ticket-alt"></i> My Tickets</a></li>
+                <li id="menu-manage-events" style="display:none;"><a href="#" id="nav-events"
+                        onclick="switchTab('events')"><i class="fas fa-calendar-alt"></i> Manage Events</a></li>
+                <li id="menu-users" style="display:none;"><a href="#" id="nav-users" onclick="switchTab('users')"><i
+                            class="fas fa-users"></i> Users</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <!-- OVERVIEW TAB -->
+            <div id="tab-dashboard" class="tab-content">
+                <div class="dashboard-header">
+                    <h2>Dashboard Overview</h2>
+                    <button class="btn btn-primary" id="createEventBtn" style="display:none;"
+                        onclick="showCreateEventModal()"><i class="fas fa-plus"></i> Create Event</button>
+                </div>
+
+                <div class="stats-grid" id="adminStatsContainer" style="display:none;">
+                    <!-- Admin/Organizer specific stats load here -->
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="stat-info">
+                            <h3>Total Events</h3>
+                            <p id="statTotalEvents">-</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
+                        <div class="stat-info">
+                            <h3>Tickets Sold</h3>
+                            <p id="statTicketsSold">-</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon" style="color: var(--success); background: rgba(16,185,129,0.1);"><i
+                                class="fas fa-dollar-sign"></i></div>
+                        <div class="stat-info">
+                            <h3>Revenue</h3>
+                            <p>$<span id="statRevenue">-</span></p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card" id="adminStatUsers" style="display:none;">
+                        <div class="stat-icon" style="color: var(--secondary); background: rgba(236,72,153,0.1);"><i
+                                class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3>Active Users</h3>
+                            <p id="statActiveUsers">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="margin-top: 40px;" id="recentActivity">
+                    <h3 style="margin-bottom: 20px;">Welcome Back!</h3>
+                    <p style="color: var(--gray);">Select a tab on the left to manage your account.</p>
+                </div>
+            </div>
+
+            <!-- BOOKINGS TAB -->
+            <div id="tab-bookings" class="tab-content" style="display:none;">
+                <h2>My Bookings</h2>
+                <div class="glass-card table-container" style="margin-top:20px;">
+                    <table id="bookingsTable">
+                        <thead>
+                            <tr>
+                                <th>Booking Ref</th>
+                                <th>Event</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="text-align:center;">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- EVENTS TAB (Organizer/Admin only) -->
+            <div id="tab-events" class="tab-content" style="display:none;">
+                <h2>Manage Events</h2>
+                <div class="glass-card table-container" style="margin-top:20px;">
+                    <table id="eventsManageTable">
+                        <thead>
+                            <tr>
+                                <th>Event Title</th>
+                                <th>Date</th>
+                                <th>Venue</th>
+                                <th>Seats Left</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="text-align:center;">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- USERS TAB (Admin only) -->
+            <div id="tab-users" class="tab-content" style="display:none;">
+                <h2>Manage Users</h2>
+                <div class="glass-card table-container" style="margin-top:20px;">
+                    <table id="usersManageTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" style="text-align:center;">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div id="createEventModal"
+        style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.8); z-index: 1000; align-items:center; justify-content:center;">
+        <div class="glass-card"
+            style="width: 100%; max-width: 700px; max-height: 90vh; overflow-y:auto; padding: 40px; position:relative;">
+            <button onclick="closeCreateEventModal()" type="button"
+                style="position:absolute; right:20px; top:20px; background:transparent; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button>
+            <h2 style="margin-bottom: 20px; text-align: center;">Create New Event</h2>
+            <form id="createEventForm" onsubmit="handleCreateEventSubmit(event)">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Event Title</label>
+                    <input type="text" id="ce_title" class="form-control" required
+                        style="width: 100%; box-sizing: border-box;">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Description</label>
+                    <textarea id="ce_description" class="form-control" rows="3" required
+                        style="width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Venue</label>
+                    <input type="text" id="ce_venue" class="form-control" required
+                        style="width: 100%; box-sizing: border-box;">
+                </div>
+                <div style="display:flex; gap:15px; margin-bottom: 15px;">
+                    <div style="flex:1;">
+                        <label style="display: block; margin-bottom: 5px;">Start Time</label>
+                        <input type="datetime-local" id="ce_start_time" class="form-control" required
+                            style="width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="display: block; margin-bottom: 5px;">End Time</label>
+                        <input type="datetime-local" id="ce_end_time" class="form-control" required
+                            style="width: 100%; box-sizing: border-box;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Total Seats Capacity</label>
+                    <input type="number" id="ce_total_seats" class="form-control" required min="1"
+                        style="width: 100%; box-sizing: border-box;">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Image URL (Optional)</label>
+                    <input type="url" id="ce_image_url" class="form-control"
+                        style="width: 100%; box-sizing: border-box;">
+                </div>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px;">Ticket Tiers</h3>
+                <div id="ticketTiersContainer">
+                    <div class="ticket-tier-row" style="display:flex; gap:10px; margin-bottom:10px;">
+                        <input type="text" class="form-control tier-name" placeholder="Tier Name (e.g. VIP)" required
+                            style="flex:1;">
+                        <input type="number" step="0.01" class="form-control tier-price" placeholder="Price ($)"
+                            required min="0" style="width:100px;">
+                        <input type="number" class="form-control tier-qty" placeholder="Quantity" required min="1"
+                            style="width:100px;">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline" onclick="addTicketTier()"
+                    style="padding: 8px 12px; font-size: 14px; margin-bottom: 25px;"><i class="fas fa-plus"></i> Add
+                    Another Tier</button>
+
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 12px; width: 100%;">Create
+                    Event</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Generate Ticket Modal -->
+    <div id="ticketModal"
+        style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.8); z-index: 1000; align-items:center; justify-content:center;">
+        <div class="glass-card"
+            style="width: 100%; max-width: 600px; max-height: 90vh; overflow-y:auto; padding: 40px; position:relative;">
+            <button onclick="document.getElementById('ticketModal').style.display='none'"
+                style="position:absolute; right:20px; top:20px; background:transparent; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button>
+            <h2 style="margin-bottom: 20px; text-align: center;">Your Tickets</h2>
+            <div id="ticketDatailsContainer"></div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+
+</html>
