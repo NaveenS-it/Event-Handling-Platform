@@ -75,8 +75,4 @@ Follow these step-by-step instructions to get your local environment running.
 
 Enjoy the journey! Let me know if you need any scale-ups.
 =======
-# Event-Handling-Platform
->>>>>>> 8cdfc4c3d4cde7ab53e5a0a2b63532254f6db4e4
-=======
-# Event-Handling-Platform
->>>>>>> 98e43a4f604bdadafa5a657f4849399224fd5fa2
+
