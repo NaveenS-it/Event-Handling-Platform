@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # EventSphere — End-to-End Event Lifecycle & Ticketing Platform
 
 ## 🌟 Overview
@@ -73,3 +74,6 @@ Follow these step-by-step instructions to get your local environment running.
 5. **REST API**: Modular APIs. Rate Limiting configured inside `server.js` using `express-rate-limit`.
 
 Enjoy the journey! Let me know if you need any scale-ups.
+=======
+# Event-Handling-Platform
+>>>>>>> 8cdfc4c3d4cde7ab53e5a0a2b63532254f6db4e4
