@@ -1,8 +1,7 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 # EventSphere — End-to-End Event Lifecycle & Ticketing Platform
 
-## 🌟 Overview
+##  Overview
 EventSphere is a premium, secure, and fully scalable web application to manage event creation, online ticketing, mock payments, QR-code tickets generation, and user/admin dashboards. Designed with glassmorphism UI elements to embody a professional SaaS style.
 
 ## 🗂 Project Structure
@@ -27,7 +26,7 @@ The project is built upon HTML/VanillaJS for Frontend to reduce configuration ov
      └── schema.sql   # Relational full DB schema
 ```
 
-## 🚀 Setup Instructions
+##  Setup Instructions
 
 Follow these step-by-step instructions to get your local environment running.
 
@@ -66,7 +65,7 @@ Follow these step-by-step instructions to get your local environment running.
    - Access Admin dashboard stats.
    - Use Postman to `POST /api/events` to populate the homepage, or register as Organizer.
 
-## ✨ Core Features Built
+##  Core Features Built
 
 1. **Robust Custom Authentication**: Built in-house using `bcrypt` for password hashing and `jsonwebtoken` for protected resources and RBAC (Role-Based Access Control).
 2. **Glassmorphism UI**: High-end CSS using transparencies and sleek animations globally (`global.css`).
